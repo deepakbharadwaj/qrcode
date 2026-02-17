@@ -1,970 +1,986 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QR Code Generator</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(16px, 2.5vw, 28px);
+      }
 
+      .container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 1100px;
+        width: 100%;
+        padding: clamp(20px, 4vw, 44px);
+      }
+
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: clamp(22px, 2.4vw, 30px);
+      }
+
+      .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 14px;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(20px, 3vw, 44px);
+        align-items: start;
+      }
+
+      @media (max-width: 900px) {
         .container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 900px;
-            width: 100%;
-            padding: 40px;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
+          padding: clamp(18px, 4vw, 28px);
         }
 
         .content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            align-items: start;
+          grid-template-columns: 1fr;
+          gap: 26px;
         }
+      }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
+      /* Form Section */
+      .form-section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
 
-            .content {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
 
-            h1 {
-                font-size: 24px;
-            }
+      label {
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      input[type="text"],
+      select {
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: all 0.3s ease;
+      }
+
+      input[type="text"]:focus,
+      select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      input[type="text"]::placeholder {
+        color: #999;
+      }
+
+      /* Color Picker */
+      .color-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      .color-input-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #f5f5f5;
+        padding: 12px;
+        border-radius: 6px;
+      }
+
+      input[type="color"] {
+        width: 50px;
+        height: 50px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .color-value {
+        font-size: 12px;
+        color: #666;
+        font-family: "Courier New", monospace;
+      }
+
+      /* Checkbox Toggle */
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+      }
+
+      input[type="checkbox"]:checked {
+        accent-color: #667eea;
+      }
+
+      /* Buttons */
+      .button-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        flex: 1;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .btn-secondary {
+        background: #f0f0f0;
+        color: #333;
+      }
+
+      .btn-secondary:hover {
+        background: #e0e0e0;
+      }
+
+      .btn-secondary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Preview Section */
+      .preview-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .preview-container {
+        width: 100%;
+        aspect-ratio: 1;
+        background: #f5f5f5;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #e0e0e0;
+        overflow: hidden;
+        min-height: clamp(240px, 50vw, 420px);
+      }
+
+      .preview-container.has-qr {
+        background: white;
+        border-color: #d0d0d0;
+      }
+
+      #qrPreview {
+        max-width: 100%;
+        max-height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #qrPreview canvas,
+      #qrPreview svg {
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+      }
+
+      .preview-placeholder {
+        color: #999;
+        text-align: center;
+        font-size: 14px;
+      }
+
+      .preview-placeholder svg {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 10px;
+        opacity: 0.3;
+      }
+
+      /* Status Message */
+      .status-message {
+        display: none;
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-size: 13px;
+        animation: slideIn 0.3s ease;
+      }
+
+      .status-message.show {
+        display: block;
+      }
+
+      .status-message.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status-message.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
         }
-
-        /* Form Section */
-        .form-section {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
+      }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+      /* Info Text */
+      .info-text {
+        font-size: 12px;
+        color: #999;
+        margin-top: 5px;
+      }
 
-        label {
-            font-weight: 600;
-            color: #333;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+      /* Advanced Settings */
+      .advanced-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        margin-top: 10px;
+        color: #667eea;
+        font-size: 13px;
+        font-weight: 600;
+      }
 
-        input[type="text"],
-        select {
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.3s ease;
-        }
+      .advanced-toggle:hover {
+        opacity: 0.8;
+      }
 
-        input[type="text"]:focus,
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
+      .advanced-settings {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
 
-        input[type="text"]::placeholder {
-            color: #999;
-        }
+      .advanced-settings.show {
+        max-height: 500px;
+      }
 
-        /* Color Picker */
-        .color-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
+      .advanced-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+      }
 
-        .color-input-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #f5f5f5;
-            padding: 12px;
-            border-radius: 6px;
-        }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
 
-        input[type="color"] {
-            width: 50px;
-            height: 50px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .color-value {
-            font-size: 12px;
-            color: #666;
-            font-family: 'Courier New', monospace;
-        }
-
-        /* Checkbox Toggle */
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        input[type="checkbox"]:checked {
-            accent-color: #667eea;
-        }
-
-        /* Buttons */
+      @media (max-width: 720px) {
         .button-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 10px;
+          flex-direction: column;
         }
 
         button {
-            flex: 1;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-
-        .btn-secondary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Preview Section */
-        .preview-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .preview-container {
-            width: 100%;
-            aspect-ratio: 1;
-            background: #f5f5f5;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #e0e0e0;
-            overflow: hidden;
-            min-height: 300px;
-        }
-
-        .preview-container.has-qr {
-            background: white;
-            border-color: #d0d0d0;
-        }
-
-        #qrPreview {
-            max-width: 100%;
-            max-height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #qrPreview canvas,
-        #qrPreview svg {
-            max-width: 100%;
-            max-height: 100%;
-            display: block;
-        }
-
-        .preview-placeholder {
-            color: #999;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .preview-placeholder svg {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 10px;
-            opacity: 0.3;
-        }
-
-        /* Status Message */
-        .status-message {
-            display: none;
-            padding: 12px 16px;
-            border-radius: 6px;
-            font-size: 13px;
-            animation: slideIn 0.3s ease;
-        }
-
-        .status-message.show {
-            display: block;
-        }
-
-        .status-message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .status-message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Info Text */
-        .info-text {
-            font-size: 12px;
-            color: #999;
-            margin-top: 5px;
-        }
-
-        /* Advanced Settings */
-        .advanced-toggle {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-            color: #667eea;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .advanced-toggle:hover {
-            opacity: 0.8;
-        }
-
-        .advanced-settings {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .advanced-settings.show {
-            max-height: 500px;
-        }
-
-        .advanced-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
+          width: 100%;
         }
 
         .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+          grid-template-columns: 1fr;
         }
 
-        @media (max-width: 768px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-
-            .color-group {
-                grid-template-columns: 1fr;
-            }
+        .color-group {
+          grid-template-columns: 1fr;
         }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>QR Code Generator</h1>
-        <p class="subtitle">Encode text or URLs into QR codes • No server • No tracking • Instant download</p>
+      <h1>QR Code Generator</h1>
+      <p class="subtitle">
+        Encode text or URLs into QR codes • No server • No tracking • Instant download
+      </p>
 
-        <div class="content">
-            <!-- Input & Controls -->
-            <div class="form-section">
-                <!-- Main Input -->
-                <div class="form-group">
-                    <label for="qrInput">Text or URL</label>
-                    <input
-                        type="text"
-                        id="qrInput"
-                        placeholder="Enter text or URL to encode..."
-                        aria-label="Text or URL input"
-                    >
-                    <p class="info-text">Enter any text, URL, or data to generate a QR code</p>
+      <div class="content">
+        <!-- Input & Controls -->
+        <div class="form-section">
+          <!-- Main Input -->
+          <div class="form-group">
+            <label for="qrInput">Text or URL</label>
+            <input
+              type="text"
+              id="qrInput"
+              placeholder="Enter text or URL to encode..."
+              aria-label="Text or URL input"
+            />
+            <p class="info-text">Enter any text, URL, or data to generate a QR code</p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="button-group">
+            <button class="btn-primary" id="generateBtn">Generate QR Code</button>
+            <button class="btn-secondary" id="downloadBtn" disabled>Download</button>
+          </div>
+
+          <!-- Status Message -->
+          <div class="status-message" id="statusMessage"></div>
+
+          <!-- Basic Settings -->
+          <div class="form-group">
+            <label for="errorCorrection">Error Correction</label>
+            <select id="errorCorrection">
+              <option value="H">Max (30%)</option>
+              <option value="L">Low (7%)</option>
+              <option value="M" selected>Medium (15%)</option>
+              <option value="Q">Quartile (25%)</option>
+            </select>
+            <p class="info-text">QR standard supports L/M/Q/H only; H is the highest level</p>
+          </div>
+
+          <!-- Advanced Settings -->
+          <div class="advanced-settings show" id="advancedSettings">
+            <div class="advanced-section">
+              <!-- Background Image -->
+              <div class="form-group">
+                <label for="bgImageInput">Background Image</label>
+                <input type="file" id="bgImageInput" accept="image/*" />
+                <div class="button-group" style="margin-top: 8px">
+                  <button class="btn-secondary" type="button" id="clearBgBtn">
+                    Remove Background
+                  </button>
                 </div>
+                <p class="info-text">QR overlays on the uploaded image for preview and download</p>
+              </div>
 
-                <!-- Action Buttons -->
-                <div class="button-group">
-                    <button class="btn-primary" id="generateBtn">Generate QR Code</button>
-                    <button class="btn-secondary" id="downloadBtn" disabled>Download</button>
-                </div>
-
-                <!-- Status Message -->
-                <div class="status-message" id="statusMessage"></div>
-
-                <!-- Basic Settings -->
-                <div class="form-group">
-                    <label for="errorCorrection">Error Correction</label>
-                    <select id="errorCorrection">
-                        <option value="H">Max (30%)</option>
-                        <option value="L">Low (7%)</option>
-                        <option value="M" selected>Medium (15%)</option>
-                        <option value="Q">Quartile (25%)</option>
-                    </select>
-                    <p class="info-text">QR standard supports L/M/Q/H only; H is the highest level</p>
-                </div>
-
-                <!-- Advanced Settings -->
-                <div class="advanced-settings show" id="advancedSettings">
-                    <div class="advanced-section">
-                        <!-- Background Image -->
-                        <div class="form-group">
-                            <label for="bgImageInput">Background Image</label>
-                            <input type="file" id="bgImageInput" accept="image/*">
-                            <div class="button-group" style="margin-top: 8px;">
-                                <button class="btn-secondary" type="button" id="clearBgBtn">Remove Background</button>
-                            </div>
-                            <p class="info-text">QR overlays on the uploaded image for preview and download</p>
-                        </div>
-
-                        <!-- Colors -->
-                        <div class="form-group">
-                            <label>Colors</label>
-                            <div class="color-group">
-                                <div>
-                                    <div class="color-input-wrapper">
-                                        <input
-                                            type="color"
-                                            id="fgColor"
-                                            value="#000000"
-                                            aria-label="Foreground color"
-                                        >
-                                        <div>
-                                            <p style="font-size: 12px; color: #666;">Foreground</p>
-                                            <p class="color-value" id="fgValue">#000000</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="color-input-wrapper">
-                                        <input
-                                            type="color"
-                                            id="bgColor"
-                                            value="#ffffff"
-                                            aria-label="Background color"
-                                        >
-                                        <div>
-                                            <p style="font-size: 12px; color: #666;">Background</p>
-                                            <p class="color-value" id="bgValue">#ffffff</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Transparent Background -->
-                        <div class="form-group" style="margin-top: 15px;">
-                            <div class="checkbox-group">
-                                <input
-                                    type="checkbox"
-                                    id="transparentBg"
-                                    aria-label="Transparent background"
-                                >
-                                <label for="transparentBg" style="text-transform: none; margin: 0;">
-                                    Transparent background (PNG/SVG)
-                                </label>
-                            </div>
-                            <p class="info-text">JPEG does not support transparency</p>
-                        </div>
-
-                        <!-- Format & Resolution -->
-                        <div class="grid-2" style="margin-top: 15px;">
-                            <div class="form-group">
-                                <label for="imageFormat">Image Format</label>
-                                <select id="imageFormat">
-                                    <option value="png">PNG</option>
-                                    <option value="jpg">JPG</option>
-                                    <option value="svg">SVG (Vector)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="resolution">Resolution</label>
-                                <select id="resolution">
-                                    <option value="256">256×256</option>
-                                    <option value="512">512×512</option>
-                                    <option value="1024" selected>1024×1024</option>
-                                    <option value="2048">2048×2048</option>
-                                </select>
-                            </div>
-                        </div>
+              <!-- Colors -->
+              <div class="form-group">
+                <label>Colors</label>
+                <div class="color-group">
+                  <div>
+                    <div class="color-input-wrapper">
+                      <input
+                        type="color"
+                        id="fgColor"
+                        value="#000000"
+                        aria-label="Foreground color"
+                      />
+                      <div>
+                        <p style="font-size: 12px; color: #666">Foreground</p>
+                        <p class="color-value" id="fgValue">#000000</p>
+                      </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Preview -->
-            <div class="preview-section">
-                <div class="preview-container" id="previewContainer">
-                    <div id="qrPreview" class="preview-placeholder">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="14" width="7" height="7"></rect>
-                            <rect x="3" y="14" width="4" height="4"></rect>
-                        </svg>
-                        <p>Enter text and click <strong>Generate QR Code</strong></p>
+                  </div>
+                  <div>
+                    <div class="color-input-wrapper">
+                      <input
+                        type="color"
+                        id="bgColor"
+                        value="#ffffff"
+                        aria-label="Background color"
+                      />
+                      <div>
+                        <p style="font-size: 12px; color: #666">Background</p>
+                        <p class="color-value" id="bgValue">#ffffff</p>
+                      </div>
                     </div>
+                  </div>
                 </div>
-                <p class="info-text" style="text-align: center;">Live preview • Updates automatically</p>
+              </div>
+
+              <!-- Transparent Background -->
+              <div class="form-group" style="margin-top: 15px">
+                <div class="checkbox-group">
+                  <input type="checkbox" id="transparentBg" aria-label="Transparent background" />
+                  <label for="transparentBg" style="text-transform: none; margin: 0">
+                    Transparent background (PNG/SVG)
+                  </label>
+                </div>
+                <p class="info-text">JPEG does not support transparency</p>
+              </div>
+
+              <!-- Format & Resolution -->
+              <div class="grid-2" style="margin-top: 15px">
+                <div class="form-group">
+                  <label for="imageFormat">Image Format</label>
+                  <select id="imageFormat">
+                    <option value="png">PNG</option>
+                    <option value="jpg">JPG</option>
+                    <option value="svg">SVG (Vector)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="resolution">Resolution</label>
+                  <select id="resolution">
+                    <option value="256">256×256</option>
+                    <option value="512">512×512</option>
+                    <option value="1024" selected>1024×1024</option>
+                    <option value="2048">2048×2048</option>
+                  </select>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+
+        <!-- Preview -->
+        <div class="preview-section">
+          <div class="preview-container" id="previewContainer">
+            <div id="qrPreview" class="preview-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="4" height="4"></rect>
+              </svg>
+              <p>Enter text and click <strong>Generate QR Code</strong></p>
+            </div>
+          </div>
+          <p class="info-text" style="text-align: center">Live preview • Updates automatically</p>
+        </div>
+      </div>
     </div>
 
     <!-- QR Code Library (qrcode-generator) with fallback CDN -->
     <script
-        id="qr-lib"
-        src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
-        onerror="(function(){var s=document.createElement('script');s.src='https://unpkg.com/qrcode-generator@1.4.4/qrcode.min.js';document.head.appendChild(s);})();"
+      id="qr-lib"
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      onerror="
+        (function () {
+          var s = document.createElement('script');
+          s.src = 'https://unpkg.com/qrcode-generator@1.4.4/qrcode.min.js';
+          document.head.appendChild(s);
+        })()
+      "
     ></script>
 
     <script>
-        // ===========================
-        // STATE MANAGEMENT
-        // ===========================
-        const state = {
-            qrCode: null,
-            lastInput: '',
-            currentFormat: 'png',
-            currentResolution: 1024,
-            backgroundImage: null,
-            backgroundDataUrl: ''
+      // ===========================
+      // STATE MANAGEMENT
+      // ===========================
+      const state = {
+        qrCode: null,
+        lastInput: "",
+        currentFormat: "png",
+        currentResolution: 1024,
+        backgroundImage: null,
+        backgroundDataUrl: "",
+      };
+
+      // ===========================
+      // DOM ELEMENTS
+      // ===========================
+      const elements = {
+        input: document.getElementById("qrInput"),
+        generateBtn: document.getElementById("generateBtn"),
+        downloadBtn: document.getElementById("downloadBtn"),
+        previewContainer: document.getElementById("previewContainer"),
+        previewDiv: document.getElementById("qrPreview"),
+        statusMessage: document.getElementById("statusMessage"),
+        fgColor: document.getElementById("fgColor"),
+        bgColor: document.getElementById("bgColor"),
+        fgValue: document.getElementById("fgValue"),
+        bgValue: document.getElementById("bgValue"),
+        transparentBg: document.getElementById("transparentBg"),
+        imageFormat: document.getElementById("imageFormat"),
+        resolution: document.getElementById("resolution"),
+        errorCorrection: document.getElementById("errorCorrection"),
+        bgImageInput: document.getElementById("bgImageInput"),
+        clearBgBtn: document.getElementById("clearBgBtn"),
+        advancedSettings: document.getElementById("advancedSettings"),
+      };
+
+      // ===========================
+      // UTILITY FUNCTIONS
+      // ===========================
+
+      /**
+       * Show status message with auto-dismiss
+       */
+      function showStatus(message, type = "success") {
+        elements.statusMessage.textContent = message;
+        elements.statusMessage.className = `status-message show ${type}`;
+        setTimeout(() => {
+          elements.statusMessage.classList.remove("show");
+        }, 3000);
+      }
+
+      /**
+       * Validate input
+       */
+      function validateInput(text) {
+        if (!text || text.trim().length === 0) {
+          showStatus("Please enter text or a URL", "error");
+          return false;
+        }
+        if (text.length > 2953) {
+          showStatus("Input is too long (max 2953 characters)", "error");
+          return false;
+        }
+        return true;
+      }
+
+      /**
+       * Get QR configuration from UI
+       */
+      function getQRConfig() {
+        const fgColor = elements.fgColor.value;
+        const bgColor = elements.bgColor.value;
+        const format = elements.imageFormat.value;
+        const transparent = elements.transparentBg.checked && format !== "jpg";
+
+        return {
+          errorCorrectionLevel: elements.errorCorrection.value,
+          margin: 1,
+          fgColor,
+          bgColor,
+          transparent,
+          format,
+          backgroundDataUrl: state.backgroundDataUrl,
         };
+      }
 
-        // ===========================
-        // DOM ELEMENTS
-        // ===========================
-        const elements = {
-            input: document.getElementById('qrInput'),
-            generateBtn: document.getElementById('generateBtn'),
-            downloadBtn: document.getElementById('downloadBtn'),
-            previewContainer: document.getElementById('previewContainer'),
-            previewDiv: document.getElementById('qrPreview'),
-            statusMessage: document.getElementById('statusMessage'),
-            fgColor: document.getElementById('fgColor'),
-            bgColor: document.getElementById('bgColor'),
-            fgValue: document.getElementById('fgValue'),
-            bgValue: document.getElementById('bgValue'),
-            transparentBg: document.getElementById('transparentBg'),
-            imageFormat: document.getElementById('imageFormat'),
-            resolution: document.getElementById('resolution'),
-            errorCorrection: document.getElementById('errorCorrection'),
-            bgImageInput: document.getElementById('bgImageInput'),
-            clearBgBtn: document.getElementById('clearBgBtn'),
-            advancedSettings: document.getElementById('advancedSettings')
-        };
+      /**
+       * Build QR data using qrcode-generator
+       */
+      function buildQR(text, errorCorrectionLevel) {
+        const qr = qrcode(0, errorCorrectionLevel);
+        qr.addData(text);
+        qr.make();
+        return qr;
+      }
 
-        // ===========================
-        // UTILITY FUNCTIONS
-        // ===========================
+      /**
+       * Load background image from file input
+       */
+      function loadBackgroundImage(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const img = new Image();
+            img.onload = () => resolve({ img, dataUrl: reader.result });
+            img.onerror = reject;
+            img.src = reader.result;
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
 
-        /**
-         * Show status message with auto-dismiss
-         */
-        function showStatus(message, type = 'success') {
-            elements.statusMessage.textContent = message;
-            elements.statusMessage.className = `status-message show ${type}`;
-            setTimeout(() => {
-                elements.statusMessage.classList.remove('show');
-            }, 3000);
+      /**
+       * Draw an image to cover the canvas
+       */
+      function drawImageCover(ctx, img, width, height) {
+        const imgRatio = img.width / img.height;
+        const canvasRatio = width / height;
+        let drawWidth = width;
+        let drawHeight = height;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        if (imgRatio > canvasRatio) {
+          drawHeight = height;
+          drawWidth = height * imgRatio;
+          offsetX = (width - drawWidth) / 2;
+        } else {
+          drawWidth = width;
+          drawHeight = width / imgRatio;
+          offsetY = (height - drawHeight) / 2;
         }
 
-        /**
-         * Validate input
-         */
-        function validateInput(text) {
-            if (!text || text.trim().length === 0) {
-                showStatus('Please enter text or a URL', 'error');
-                return false;
+        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+      }
+
+      /**
+       * Render QR to canvas
+       */
+      function drawQRToCanvas(qr, config) {
+        const canvas = document.createElement("canvas");
+        const size = state.currentResolution;
+        const moduleCount = qr.getModuleCount();
+        const margin = Math.max(0, config.margin || 0);
+        const totalModules = moduleCount + margin * 2;
+        const cellSize = size / totalModules;
+
+        canvas.width = size;
+        canvas.height = size;
+
+        const ctx = canvas.getContext("2d");
+
+        if (state.backgroundImage) {
+          drawImageCover(ctx, state.backgroundImage, size, size);
+        } else if (!config.transparent || config.format === "jpg") {
+          ctx.fillStyle = config.bgColor;
+          ctx.fillRect(0, 0, size, size);
+        } else {
+          ctx.clearRect(0, 0, size, size);
+        }
+
+        ctx.fillStyle = config.fgColor;
+
+        for (let row = 0; row < moduleCount; row += 1) {
+          for (let col = 0; col < moduleCount; col += 1) {
+            if (qr.isDark(row, col)) {
+              const x = (col + margin) * cellSize;
+              const y = (row + margin) * cellSize;
+              ctx.fillRect(x, y, cellSize, cellSize);
             }
-            if (text.length > 2953) {
-                showStatus('Input is too long (max 2953 characters)', 'error');
-                return false;
+          }
+        }
+
+        return canvas;
+      }
+
+      /**
+       * Render QR to SVG
+       */
+      function buildSVGFromQR(qr, config) {
+        const moduleCount = qr.getModuleCount();
+        const margin = Math.max(0, config.margin || 0);
+        const size = moduleCount + margin * 2;
+
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+        svg.setAttribute("width", state.currentResolution);
+        svg.setAttribute("height", state.currentResolution);
+        svg.setAttribute("shape-rendering", "crispEdges");
+
+        if (config.backgroundDataUrl) {
+          const bgImage = document.createElementNS("http://www.w3.org/2000/svg", "image");
+          bgImage.setAttribute("width", String(size));
+          bgImage.setAttribute("height", String(size));
+          bgImage.setAttribute("href", config.backgroundDataUrl);
+          bgImage.setAttribute("preserveAspectRatio", "xMidYMid slice");
+          svg.appendChild(bgImage);
+        } else if (!config.transparent) {
+          const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          bg.setAttribute("width", String(size));
+          bg.setAttribute("height", String(size));
+          bg.setAttribute("fill", config.bgColor);
+          svg.appendChild(bg);
+        }
+
+        let pathData = "";
+        for (let row = 0; row < moduleCount; row += 1) {
+          for (let col = 0; col < moduleCount; col += 1) {
+            if (qr.isDark(row, col)) {
+              const x = col + margin;
+              const y = row + margin;
+              pathData += `M${x} ${y}h1v1h-1z`;
             }
-            return true;
+          }
         }
 
-        /**
-         * Get QR configuration from UI
-         */
-        function getQRConfig() {
-            const fgColor = elements.fgColor.value;
-            const bgColor = elements.bgColor.value;
-            const format = elements.imageFormat.value;
-            const transparent = elements.transparentBg.checked && format !== 'jpg';
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", pathData);
+        path.setAttribute("fill", config.fgColor);
+        svg.appendChild(path);
 
-            return {
-                errorCorrectionLevel: elements.errorCorrection.value,
-                margin: 1,
-                fgColor,
-                bgColor,
-                transparent,
-                format,
-                backgroundDataUrl: state.backgroundDataUrl
-            };
+        return svg;
+      }
+
+      /**
+       * Generate QR code
+       */
+      async function generateQRCode(text) {
+        if (!validateInput(text)) {
+          return;
         }
 
-        /**
-         * Build QR data using qrcode-generator
-         */
-        function buildQR(text, errorCorrectionLevel) {
-            const qr = qrcode(0, errorCorrectionLevel);
-            qr.addData(text);
-            qr.make();
-            return qr;
+        if (!window.qrcode) {
+          showStatus("QR library failed to load. Check your connection or refresh.", "error");
+          return;
         }
 
-        /**
-         * Load background image from file input
-         */
-        function loadBackgroundImage(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const img = new Image();
-                    img.onload = () => resolve({ img, dataUrl: reader.result });
-                    img.onerror = reject;
-                    img.src = reader.result;
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
+        state.lastInput = text;
+
+        // Clear previous preview
+        elements.previewDiv.innerHTML = "";
+
+        try {
+          state.currentFormat = elements.imageFormat.value;
+          state.currentResolution = parseInt(elements.resolution.value);
+          const config = getQRConfig();
+
+          if (elements.imageFormat.value === "svg") {
+            // Generate SVG
+            const svg = await generateSVGQRCode(text, config);
+            elements.previewDiv.innerHTML = "";
+            elements.previewDiv.appendChild(svg);
+          } else {
+            // Generate PNG
+            const canvas = await generateCanvasQRCode(text, config);
+            elements.previewDiv.innerHTML = "";
+            elements.previewDiv.appendChild(canvas);
+          }
+
+          elements.previewContainer.classList.add("has-qr");
+          elements.downloadBtn.disabled = false;
+          showStatus("QR code generated successfully", "success");
+        } catch (error) {
+          console.error("QR generation error:", error);
+          showStatus("Failed to generate QR code. Please try again.", "error");
+          elements.downloadBtn.disabled = true;
+        }
+      }
+
+      /**
+       * Generate Canvas-based QR code
+       */
+      function generateCanvasQRCode(text, config) {
+        return new Promise((resolve, reject) => {
+          try {
+            const qr = buildQR(text, config.errorCorrectionLevel);
+            const canvas = drawQRToCanvas(qr, config);
+            resolve(canvas);
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
+
+      /**
+       * Generate SVG-based QR code
+       */
+      function generateSVGQRCode(text, config) {
+        return new Promise((resolve, reject) => {
+          try {
+            const qr = buildQR(text, config.errorCorrectionLevel);
+            const svg = buildSVGFromQR(qr, config);
+            resolve(svg);
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
+
+      /**
+       * Download QR code
+       */
+      async function downloadQRCode() {
+        if (!state.lastInput) {
+          showStatus("Please generate a QR code first", "error");
+          return;
+        }
+
+        if (!window.qrcode) {
+          showStatus("QR library failed to load. Check your connection or refresh.", "error");
+          return;
+        }
+
+        try {
+          const config = getQRConfig();
+          const timestamp = new Date().toISOString().slice(0, 10);
+          let filename = `qrcode-${timestamp}`;
+
+          if (elements.imageFormat.value === "svg") {
+            // Download as SVG
+            const qr = buildQR(state.lastInput, config.errorCorrectionLevel);
+            const svg = buildSVGFromQR(qr, config);
+            const svgText = new XMLSerializer().serializeToString(svg);
+            const blob = new Blob([svgText], { type: "image/svg+xml" });
+            downloadBlob(blob, `${filename}.svg`);
+          } else if (elements.imageFormat.value === "jpg") {
+            // Download as JPG
+            const qr = buildQR(state.lastInput, config.errorCorrectionLevel);
+            const canvas = drawQRToCanvas(qr, config);
+            canvas.toBlob(
+              (blob) => {
+                downloadBlob(blob, `${filename}.jpg`);
+              },
+              "image/jpeg",
+              0.92,
+            );
+          } else {
+            // Download as PNG
+            const qr = buildQR(state.lastInput, config.errorCorrectionLevel);
+            const canvas = drawQRToCanvas(qr, config);
+            canvas.toBlob((blob) => {
+              downloadBlob(blob, `${filename}.png`);
             });
+          }
+
+          showStatus(`Downloaded as ${filename}.${elements.imageFormat.value}`, "success");
+        } catch (error) {
+          console.error("Download error:", error);
+          showStatus("Failed to download QR code", "error");
         }
+      }
 
-        /**
-         * Draw an image to cover the canvas
-         */
-        function drawImageCover(ctx, img, width, height) {
-            const imgRatio = img.width / img.height;
-            const canvasRatio = width / height;
-            let drawWidth = width;
-            let drawHeight = height;
-            let offsetX = 0;
-            let offsetY = 0;
+      /**
+       * Download blob as file
+       */
+      function downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
 
-            if (imgRatio > canvasRatio) {
-                drawHeight = height;
-                drawWidth = height * imgRatio;
-                offsetX = (width - drawWidth) / 2;
-            } else {
-                drawWidth = width;
-                drawHeight = width / imgRatio;
-                offsetY = (height - drawHeight) / 2;
-            }
+      /**
+       * Download data URL
+       */
+      function downloadDataUrl(dataUrl, filename) {
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
 
-            ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+      /**
+       * Update color display
+       */
+      function updateColorDisplay() {
+        elements.fgValue.textContent = elements.fgColor.value.toUpperCase();
+        elements.bgValue.textContent = elements.bgColor.value.toUpperCase();
+      }
+
+      // ===========================
+      // EVENT LISTENERS
+      // ===========================
+
+      // Generate on button click
+      elements.generateBtn.addEventListener("click", () => {
+        generateQRCode(elements.input.value);
+      });
+
+      // Generate on Enter key
+      elements.input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          generateQRCode(elements.input.value);
         }
+      });
 
-        /**
-         * Render QR to canvas
-         */
-        function drawQRToCanvas(qr, config) {
-            const canvas = document.createElement('canvas');
-            const size = state.currentResolution;
-            const moduleCount = qr.getModuleCount();
-            const margin = Math.max(0, config.margin || 0);
-            const totalModules = moduleCount + margin * 2;
-            const cellSize = size / totalModules;
+      // Download button
+      elements.downloadBtn.addEventListener("click", downloadQRCode);
 
-            canvas.width = size;
-            canvas.height = size;
-
-            const ctx = canvas.getContext('2d');
-
-            if (state.backgroundImage) {
-                drawImageCover(ctx, state.backgroundImage, size, size);
-            } else if (!config.transparent || config.format === 'jpg') {
-                ctx.fillStyle = config.bgColor;
-                ctx.fillRect(0, 0, size, size);
-            } else {
-                ctx.clearRect(0, 0, size, size);
-            }
-
-            ctx.fillStyle = config.fgColor;
-
-            for (let row = 0; row < moduleCount; row += 1) {
-                for (let col = 0; col < moduleCount; col += 1) {
-                    if (qr.isDark(row, col)) {
-                        const x = (col + margin) * cellSize;
-                        const y = (row + margin) * cellSize;
-                        ctx.fillRect(x, y, cellSize, cellSize);
-                    }
-                }
-            }
-
-            return canvas;
-        }
-
-        /**
-         * Render QR to SVG
-         */
-        function buildSVGFromQR(qr, config) {
-            const moduleCount = qr.getModuleCount();
-            const margin = Math.max(0, config.margin || 0);
-            const size = moduleCount + margin * 2;
-
-            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
-            svg.setAttribute('width', state.currentResolution);
-            svg.setAttribute('height', state.currentResolution);
-            svg.setAttribute('shape-rendering', 'crispEdges');
-
-            if (config.backgroundDataUrl) {
-                const bgImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                bgImage.setAttribute('width', String(size));
-                bgImage.setAttribute('height', String(size));
-                bgImage.setAttribute('href', config.backgroundDataUrl);
-                bgImage.setAttribute('preserveAspectRatio', 'xMidYMid slice');
-                svg.appendChild(bgImage);
-            } else if (!config.transparent) {
-                const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                bg.setAttribute('width', String(size));
-                bg.setAttribute('height', String(size));
-                bg.setAttribute('fill', config.bgColor);
-                svg.appendChild(bg);
-            }
-
-            let pathData = '';
-            for (let row = 0; row < moduleCount; row += 1) {
-                for (let col = 0; col < moduleCount; col += 1) {
-                    if (qr.isDark(row, col)) {
-                        const x = col + margin;
-                        const y = row + margin;
-                        pathData += `M${x} ${y}h1v1h-1z`;
-                    }
-                }
-            }
-
-            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            path.setAttribute('d', pathData);
-            path.setAttribute('fill', config.fgColor);
-            svg.appendChild(path);
-
-            return svg;
-        }
-
-        /**
-         * Generate QR code
-         */
-        async function generateQRCode(text) {
-            if (!validateInput(text)) {
-                return;
-            }
-
-            if (!window.qrcode) {
-                showStatus('QR library failed to load. Check your connection or refresh.', 'error');
-                return;
-            }
-
-            state.lastInput = text;
-
-            // Clear previous preview
-            elements.previewDiv.innerHTML = '';
-
-            try {
-                state.currentFormat = elements.imageFormat.value;
-                state.currentResolution = parseInt(elements.resolution.value);
-                const config = getQRConfig();
-
-                if (elements.imageFormat.value === 'svg') {
-                    // Generate SVG
-                    const svg = await generateSVGQRCode(text, config);
-                    elements.previewDiv.innerHTML = '';
-                    elements.previewDiv.appendChild(svg);
-                } else {
-                    // Generate PNG
-                    const canvas = await generateCanvasQRCode(text, config);
-                    elements.previewDiv.innerHTML = '';
-                    elements.previewDiv.appendChild(canvas);
-                }
-
-                elements.previewContainer.classList.add('has-qr');
-                elements.downloadBtn.disabled = false;
-                showStatus('QR code generated successfully', 'success');
-            } catch (error) {
-                console.error('QR generation error:', error);
-                showStatus('Failed to generate QR code. Please try again.', 'error');
-                elements.downloadBtn.disabled = true;
-            }
-        }
-
-        /**
-         * Generate Canvas-based QR code
-         */
-        function generateCanvasQRCode(text, config) {
-            return new Promise((resolve, reject) => {
-                try {
-                    const qr = buildQR(text, config.errorCorrectionLevel);
-                    const canvas = drawQRToCanvas(qr, config);
-                    resolve(canvas);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        }
-
-        /**
-         * Generate SVG-based QR code
-         */
-        function generateSVGQRCode(text, config) {
-            return new Promise((resolve, reject) => {
-                try {
-                    const qr = buildQR(text, config.errorCorrectionLevel);
-                    const svg = buildSVGFromQR(qr, config);
-                    resolve(svg);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        }
-
-        /**
-         * Download QR code
-         */
-        async function downloadQRCode() {
-            if (!state.lastInput) {
-                showStatus('Please generate a QR code first', 'error');
-                return;
-            }
-
-            if (!window.qrcode) {
-                showStatus('QR library failed to load. Check your connection or refresh.', 'error');
-                return;
-            }
-
-            try {
-                const config = getQRConfig();
-                const timestamp = new Date().toISOString().slice(0, 10);
-                let filename = `qrcode-${timestamp}`;
-
-                if (elements.imageFormat.value === 'svg') {
-                    // Download as SVG
-                    const qr = buildQR(state.lastInput, config.errorCorrectionLevel);
-                    const svg = buildSVGFromQR(qr, config);
-                    const svgText = new XMLSerializer().serializeToString(svg);
-                    const blob = new Blob([svgText], { type: 'image/svg+xml' });
-                    downloadBlob(blob, `${filename}.svg`);
-                } else if (elements.imageFormat.value === 'jpg') {
-                    // Download as JPG
-                    const qr = buildQR(state.lastInput, config.errorCorrectionLevel);
-                    const canvas = drawQRToCanvas(qr, config);
-                    canvas.toBlob((blob) => {
-                        downloadBlob(blob, `${filename}.jpg`);
-                    }, 'image/jpeg', 0.92);
-                } else {
-                    // Download as PNG
-                    const qr = buildQR(state.lastInput, config.errorCorrectionLevel);
-                    const canvas = drawQRToCanvas(qr, config);
-                    canvas.toBlob((blob) => {
-                        downloadBlob(blob, `${filename}.png`);
-                    });
-                }
-
-                showStatus(`Downloaded as ${filename}.${elements.imageFormat.value}`, 'success');
-            } catch (error) {
-                console.error('Download error:', error);
-                showStatus('Failed to download QR code', 'error');
-            }
-        }
-
-        /**
-         * Download blob as file
-         */
-        function downloadBlob(blob, filename) {
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }
-
-        /**
-         * Download data URL
-         */
-        function downloadDataUrl(dataUrl, filename) {
-            const link = document.createElement('a');
-            link.href = dataUrl;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        /**
-         * Update color display
-         */
-        function updateColorDisplay() {
-            elements.fgValue.textContent = elements.fgColor.value.toUpperCase();
-            elements.bgValue.textContent = elements.bgColor.value.toUpperCase();
-        }
-
-        // ===========================
-        // EVENT LISTENERS
-        // ===========================
-
-        // Generate on button click
-        elements.generateBtn.addEventListener('click', () => {
-            generateQRCode(elements.input.value);
-        });
-
-        // Generate on Enter key
-        elements.input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                generateQRCode(elements.input.value);
-            }
-        });
-
-        // Download button
-        elements.downloadBtn.addEventListener('click', downloadQRCode);
-
-        // Color inputs
-        elements.fgColor.addEventListener('change', () => {
-            updateColorDisplay();
-            if (state.lastInput) generateQRCode(state.lastInput);
-        });
-
-        elements.bgColor.addEventListener('change', () => {
-            updateColorDisplay();
-            if (state.lastInput) generateQRCode(state.lastInput);
-        });
-
-        // Format selection
-        elements.imageFormat.addEventListener('change', () => {
-            if (elements.imageFormat.value === 'jpg') {
-                elements.transparentBg.checked = false;
-            }
-            if (state.lastInput) generateQRCode(state.lastInput);
-        });
-
-        // Resolution selection
-        elements.resolution.addEventListener('change', () => {
-            if (state.lastInput) generateQRCode(state.lastInput);
-        });
-
-        // Error correction
-        elements.errorCorrection.addEventListener('change', () => {
-            if (state.lastInput) generateQRCode(state.lastInput);
-        });
-
-        // Transparent background
-        elements.transparentBg.addEventListener('change', () => {
-            if (state.lastInput) generateQRCode(state.lastInput);
-        });
-
-        // Background image upload
-        elements.bgImageInput.addEventListener('change', async (e) => {
-            const file = e.target.files && e.target.files[0];
-            if (!file) return;
-
-            try {
-                const { img, dataUrl } = await loadBackgroundImage(file);
-                state.backgroundImage = img;
-                state.backgroundDataUrl = dataUrl;
-                if (state.lastInput) generateQRCode(state.lastInput);
-            } catch (error) {
-                console.error('Background image error:', error);
-                showStatus('Failed to load background image', 'error');
-            }
-        });
-
-        // Clear background image
-        elements.clearBgBtn.addEventListener('click', () => {
-            state.backgroundImage = null;
-            state.backgroundDataUrl = '';
-            elements.bgImageInput.value = '';
-            if (state.lastInput) generateQRCode(state.lastInput);
-        });
-
-        // ===========================
-        // INITIALIZATION
-        // ===========================
+      // Color inputs
+      elements.fgColor.addEventListener("change", () => {
         updateColorDisplay();
-        elements.input.focus();
+        if (state.lastInput) generateQRCode(state.lastInput);
+      });
+
+      elements.bgColor.addEventListener("change", () => {
+        updateColorDisplay();
+        if (state.lastInput) generateQRCode(state.lastInput);
+      });
+
+      // Format selection
+      elements.imageFormat.addEventListener("change", () => {
+        if (elements.imageFormat.value === "jpg") {
+          elements.transparentBg.checked = false;
+        }
+        if (state.lastInput) generateQRCode(state.lastInput);
+      });
+
+      // Resolution selection
+      elements.resolution.addEventListener("change", () => {
+        if (state.lastInput) generateQRCode(state.lastInput);
+      });
+
+      // Error correction
+      elements.errorCorrection.addEventListener("change", () => {
+        if (state.lastInput) generateQRCode(state.lastInput);
+      });
+
+      // Transparent background
+      elements.transparentBg.addEventListener("change", () => {
+        if (state.lastInput) generateQRCode(state.lastInput);
+      });
+
+      // Background image upload
+      elements.bgImageInput.addEventListener("change", async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        try {
+          const { img, dataUrl } = await loadBackgroundImage(file);
+          state.backgroundImage = img;
+          state.backgroundDataUrl = dataUrl;
+          if (state.lastInput) generateQRCode(state.lastInput);
+        } catch (error) {
+          console.error("Background image error:", error);
+          showStatus("Failed to load background image", "error");
+        }
+      });
+
+      // Clear background image
+      elements.clearBgBtn.addEventListener("click", () => {
+        state.backgroundImage = null;
+        state.backgroundDataUrl = "";
+        elements.bgImageInput.value = "";
+        if (state.lastInput) generateQRCode(state.lastInput);
+      });
+
+      // ===========================
+      // INITIALIZATION
+      // ===========================
+      updateColorDisplay();
+      elements.input.focus();
     </script>
-</body>
+  </body>
 </html>
